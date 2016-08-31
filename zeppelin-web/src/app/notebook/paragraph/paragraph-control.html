@@ -13,8 +13,10 @@ limitations under the License.
 -->
 
 <div id="{{paragraph.id}}_control" class="control" ng-show="!asIframe">
-
-  <span>
+  <span ng-if="paragraph.status=='PENDING'">
+    QUEUED
+  </span>
+  <span ng-if="paragraph.status!='PENDING'">
     {{paragraph.status}}
   </span>
 
