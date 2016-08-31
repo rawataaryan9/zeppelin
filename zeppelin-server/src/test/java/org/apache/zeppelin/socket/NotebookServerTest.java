@@ -44,6 +44,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.*;
@@ -205,7 +207,10 @@ public class NotebookServerTest extends AbstractTestRestApi {
             .put("noteId", "noteId")
             .put("paragraphId", "paragraphId"));
 
-    server.noteSocketMap.put("noteId", asList(conn, otherConn));
+    Queue<NotebookSocket> socketQueue = new ConcurrentLinkedQueue();
+    socketQueue.add(conn);
+    socketQueue.add(otherConn);
+    server.noteSocketMap.put("noteId", socketQueue);
 
     // When
     server.angularObjectClientBind(conn, new HashSet<String>(), notebook, messageReceived);
@@ -254,7 +259,10 @@ public class NotebookServerTest extends AbstractTestRestApi {
             .put("noteId", "noteId")
             .put("paragraphId", "paragraphId"));
 
-    server.noteSocketMap.put("noteId", asList(conn, otherConn));
+    Queue<NotebookSocket> socketQueue = new ConcurrentLinkedQueue();
+    socketQueue.add(conn);
+    socketQueue.add(otherConn);
+    server.noteSocketMap.put("noteId", socketQueue);
 
     // When
     server.angularObjectClientBind(conn, new HashSet<String>(), notebook, messageReceived);
@@ -297,7 +305,10 @@ public class NotebookServerTest extends AbstractTestRestApi {
             .put("noteId", "noteId")
             .put("paragraphId", "paragraphId"));
 
-    server.noteSocketMap.put("noteId", asList(conn, otherConn));
+    Queue<NotebookSocket> socketQueue = new ConcurrentLinkedQueue();
+    socketQueue.add(conn);
+    socketQueue.add(otherConn);
+    server.noteSocketMap.put("noteId", socketQueue);
 
     // When
     server.angularObjectClientUnbind(conn, new HashSet<String>(), notebook, messageReceived);
@@ -344,7 +355,11 @@ public class NotebookServerTest extends AbstractTestRestApi {
             .put("interpreterGroupId", "mdGroup")
             .put("noteId", "noteId")
             .put("paragraphId", "paragraphId"));
-    server.noteSocketMap.put("noteId", asList(conn, otherConn));
+
+    Queue<NotebookSocket> socketQueue = new ConcurrentLinkedQueue();
+    socketQueue.add(conn);
+    socketQueue.add(otherConn);
+    server.noteSocketMap.put("noteId", socketQueue);
 
     // When
     server.angularObjectClientUnbind(conn, new HashSet<String>(), notebook, messageReceived);
