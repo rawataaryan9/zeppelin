@@ -475,9 +475,6 @@ public class NotebookServer extends WebSocketServlet implements
       sendAllAngularObjects(note, conn);
     } else {
       removeConnectionFromAllNote(conn);
-      LOG.info("Trying to send null homeNote message to notebookId " + noteId + 
-              " with connection remote Addr " + conn.getRequest().getRemoteAddr() + 
-              " and port " + conn.getRequest().getRemotePort());
       conn.send(serializeMessage(new Message(OP.NOTE).put("note", null)));
     }
   }
@@ -803,7 +800,7 @@ public class NotebookServer extends WebSocketServlet implements
 
     if (paragraphId == null) {
       throw new IllegalArgumentException("target paragraph not specified for " +
-              "angular value bind");
+        "angular value bind");
     }
 
     if (note != null) {
