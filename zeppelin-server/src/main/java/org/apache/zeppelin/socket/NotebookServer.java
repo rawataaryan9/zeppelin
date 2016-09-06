@@ -221,10 +221,7 @@ public class NotebookServer extends WebSocketServlet implements
             break;
       }
     } catch (Exception e) {
-      LOG.error("Can't handle message from remote addr "
-              + conn.getRequest().getRemoteAddr()
-              + " with port " + conn.getRequest().getRemotePort()
-              + "for message " + deserializeMessage(msg).op, e);
+      LOG.error("Can't handle message", e);
     }
   }
 
@@ -317,14 +314,9 @@ public class NotebookServer extends WebSocketServlet implements
     synchronized (socketLists) {
       for (NotebookSocket conn : socketLists) {
         try {
-          LOG.info("Trying to send message broadcast to notebookId "  +  noteId  + 
-                  " with connection remote Addr "  +  conn.getRequest().getRemoteAddr()  +  
-                  " and port "  +  conn.getRequest().getRemotePort());
           conn.send(serializeMessage(m));
         } catch (IOException e) {
-          LOG.error("socket error with note id " + noteId
-                  + " with connection remoteAddr " + conn.getRequest().getRemoteAddr()
-                  + " and port " + conn.getRequest().getRemotePort(), e);
+          LOG.error("socket error", e);
         }
       }
     }
@@ -343,14 +335,9 @@ public class NotebookServer extends WebSocketServlet implements
           continue;
         }
         try {
-          LOG.info("Trying to send message broadcastExcept to notebookId "  +  noteId  +  
-                  " with connection remote Addr "  +  conn.getRequest().getRemoteAddr()  +  
-                  " and port "  +  conn.getRequest().getRemotePort());
           conn.send(serializeMessage(m));
         } catch (IOException e) {
-          LOG.error("socket error with note id " + noteId
-                  + " with connection remoteAddr " + conn.getRequest().getRemoteAddr()
-                  + " and port " + conn.getRequest().getRemotePort(), e);
+          LOG.error("socket error", e);
         }
       }
     }
@@ -359,28 +346,18 @@ public class NotebookServer extends WebSocketServlet implements
   private void broadcastAll(Message m) {
     for (NotebookSocket conn : connectedSockets) {
       try {
-        LOG.info("broadcast all send message with connection remote Addr "
-                 + conn.getRequest().getRemoteAddr() + 
-                " and port " + conn.getRequest().getRemotePort());
         conn.send(serializeMessage(m));
       } catch (IOException e) {
-        LOG.error("socket error with connection remoteAddr "
-                + conn.getRequest().getRemoteAddr()
-                + " and port " + conn.getRequest().getRemotePort(), e);
+        LOG.error("socket error", e);
       }
     }
   }
 
   private void unicast(Message m, NotebookSocket conn) {
     try {
-      LOG.info("unicast send message with connection remote Addr "
-               + conn.getRequest().getRemoteAddr() + 
-              " and port " + conn.getRequest().getRemotePort());
       conn.send(serializeMessage(m));
     } catch (IOException e) {
-      LOG.error("socket error with connection remoteAddr "
-              + conn.getRequest().getRemoteAddr()
-              + " and port " + conn.getRequest().getRemotePort(), e);
+      LOG.error("socket error", e);
     }
   }
 
@@ -444,13 +421,10 @@ public class NotebookServer extends WebSocketServlet implements
     LOG.info("Cannot {}. Connection readers {}. Allowed readers {}",
             op, userAndRoles, allowed);
 
-    LOG.info("permission error send message with connection remote Addr "
-             + conn.getRequest().getRemoteAddr() + 
-            " and port " + conn.getRequest().getRemotePort());
     conn.send(serializeMessage(new Message(OP.AUTH_INFO).put("info",
-            "Insufficient privileges to "  +  op  +  " notebook.\n\n"  + 
-                    "Allowed users or roles: "  +  allowed.toString()  +  "\n\n"  + 
-                    "But the user "  +  userName  +  " belongs to: "  +  userAndRoles.toString())));
+            "Insufficient privileges to " + op + " notebook.\n\n" +
+                    "Allowed users or roles: " + allowed.toString() + "\n\n" +
+                    "But the user " + userName + " belongs to: " + userAndRoles.toString())));
   }
 
   private void sendNote(NotebookSocket conn, HashSet<String> userAndRoles, Notebook notebook,
@@ -475,9 +449,6 @@ public class NotebookServer extends WebSocketServlet implements
         return;
       }
       addConnectionToNote(note.id(), conn);
-      LOG.info("Trying to send message sendNote to notebookId " + noteId + 
-              " with connection remote Addr " + conn.getRequest().getRemoteAddr() + 
-              " and port " + conn.getRequest().getRemotePort());
       conn.send(serializeMessage(new Message(OP.NOTE).put("note", note)));
       sendAllAngularObjects(note, conn);
     }
@@ -500,9 +471,6 @@ public class NotebookServer extends WebSocketServlet implements
         return;
       }
       addConnectionToNote(note.id(), conn);
-      LOG.info("Trying to send homeNote to notebookId " + noteId + 
-              " with connection remote Addr " + conn.getRequest().getRemoteAddr() + 
-              " and port " + conn.getRequest().getRemotePort());
       conn.send(serializeMessage(new Message(OP.NOTE).put("note", note)));
       sendAllAngularObjects(note, conn);
     } else {
@@ -574,16 +542,13 @@ public class NotebookServer extends WebSocketServlet implements
     if (message != null) {
       String noteName = (String) message.get("name");
       if (noteName == null || noteName.isEmpty()){
-        noteName = "Note "  +  note.getId();
+        noteName = "Note " + note.getId();
       }
       note.setName(noteName);
     }
 
     note.persist(subject);
     addConnectionToNote(note.id(), (NotebookSocket) conn);
-    LOG.info("Trying to send message for createNote notebookId " + note.getId() + 
-            " with connection remote Addr " + conn.getRequest().getRemoteAddr() + 
-            " and port " + conn.getRequest().getRemotePort());
     conn.send(serializeMessage(new Message(OP.NEW_NOTE).put("note", note)));
     broadcastNoteList(subject);
   }
@@ -648,9 +613,6 @@ public class NotebookServer extends WebSocketServlet implements
     Note newNote = notebook.cloneNote(noteId, name, new AuthenticationInfo(fromMessage.principal));
     AuthenticationInfo subject = new AuthenticationInfo(fromMessage.principal);
     addConnectionToNote(newNote.id(), (NotebookSocket) conn);
-    LOG.info("Trying to send message cloneNote to notebookId " + noteId + 
-            " with connection remote Addr " + conn.getRequest().getRemoteAddr() + 
-            " and port " + conn.getRequest().getRemotePort());
     conn.send(serializeMessage(new Message(OP.NEW_NOTE).put("note", newNote)));
     broadcastNoteList(subject);
   }
@@ -721,9 +683,6 @@ public class NotebookServer extends WebSocketServlet implements
     int cursor = (int) Double.parseDouble(fromMessage.get("cursor").toString());
     Message resp = new Message(OP.COMPLETION_LIST).put("id", paragraphId);
     if (paragraphId == null) {
-      LOG.info("Trying to send message completion to paragraphId " + paragraphId + 
-              " with connection remote Addr " + conn.getRequest().getRemoteAddr() + 
-              " and port " + conn.getRequest().getRemotePort());
       conn.send(serializeMessage(resp));
       return;
     }
@@ -731,9 +690,6 @@ public class NotebookServer extends WebSocketServlet implements
     final Note note = notebook.getNote(getOpenNoteId(conn));
     List<InterpreterCompletion> candidates = note.completion(paragraphId, buffer, cursor);
     resp.put("completions", candidates);
-    LOG.info("Trying to send message completion to paragraphId " + paragraphId + 
-            " with connection remote Addr " + conn.getRequest().getRemoteAddr() + 
-            " and port " + conn.getRequest().getRemotePort());
     conn.send(serializeMessage(resp));
   }
 
@@ -846,8 +802,8 @@ public class NotebookServer extends WebSocketServlet implements
     Note note = notebook.getNote(noteId);
 
     if (paragraphId == null) {
-      throw new IllegalArgumentException("target paragraph not specified for "  + 
-        "angular value bind");
+      throw new IllegalArgumentException("target paragraph not specified for " +
+              "angular value bind");
     }
 
     if (note != null) {
@@ -886,7 +842,7 @@ public class NotebookServer extends WebSocketServlet implements
     Note note = notebook.getNote(noteId);
 
     if (paragraphId == null) {
-      throw new IllegalArgumentException("target paragraph not specified for "  + 
+      throw new IllegalArgumentException("target paragraph not specified for " +
               "angular value unBind");
     }
 
@@ -911,7 +867,7 @@ public class NotebookServer extends WebSocketServlet implements
       throws Exception {
     final Paragraph paragraph = note.getParagraph(paragraphId);
     if (paragraph == null) {
-      throw new IllegalArgumentException("Unknown paragraph with id : "  +  paragraphId);
+      throw new IllegalArgumentException("Unknown paragraph with id : " + paragraphId);
     }
     return paragraph.getCurrentRepl().getInterpreterGroup();
   }
@@ -1115,9 +1071,7 @@ public class NotebookServer extends WebSocketServlet implements
                     .getVarName());
           }
         });
-    LOG.info("Trying to send message sendAllConfigurations for socket ip "
-             + conn.getRequest().getRemoteAddr() + " with port " + 
-            conn.getRequest().getRemotePort());
+
     conn.send(serializeMessage(new Message(OP.CONFIGURATIONS_INFO)
         .put("configurations", configurations)));
   }
@@ -1251,10 +1205,6 @@ public class NotebookServer extends WebSocketServlet implements
     if (settings == null || settings.size() == 0) {
       return;
     }
-
-    LOG.info("Trying to send message sendAllAngularObjs with noteId " +
-            note.getId() + " for socket ip " + conn.getRequest().getRemoteAddr() +
-            " with port " +  conn.getRequest().getRemotePort());
 
     for (InterpreterSetting intpSetting : settings) {
       AngularObjectRegistry registry = intpSetting.getInterpreterGroup(note.id())
