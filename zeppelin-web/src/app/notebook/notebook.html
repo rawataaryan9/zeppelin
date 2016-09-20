@@ -90,7 +90,7 @@ limitations under the License.
                              placeholder="search for users"
                              class="input"
                              ng-keydown="checkKeyDown($event,'readers')"
-                             ng-keyup="checkKeyUp($event)"> Readers can only read the note.</p>
+                             ng-keyup="checkKeyUp($event)" disabled> All Users can read this note.</p>
         <div ng-if="role === 'readers'" class="userlist">
           <ul>
             <li ng-repeat="suggestion in suggestions"
