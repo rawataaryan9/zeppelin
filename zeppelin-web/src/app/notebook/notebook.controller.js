@@ -391,6 +391,11 @@ angular.module('zeppelinWebApp').controller('NotebookCtrl',
   // create new paragraph on current position
   $scope.$on('insertParagraph', function(event, paragraphId, position) {
     var newIndex = -1;
+
+    if($scope.note.paragraphs.length >= 30) {
+      return;
+    }
+
     for (var i=0; i<$scope.note.paragraphs.length; i++) {
       if ( $scope.note.paragraphs[i].id === paragraphId ) {
         //determine position of where to add new paragraph; default is below

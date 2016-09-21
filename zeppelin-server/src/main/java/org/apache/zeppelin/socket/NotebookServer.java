@@ -1080,7 +1080,7 @@ public class NotebookServer extends WebSocketServlet implements
     // if it's the last paragraph, let's add a new one
     boolean isTheLastParagraph = note.getLastParagraph().getId()
         .equals(p.getId());
-    if (!Strings.isNullOrEmpty(text) && isTheLastParagraph) {
+    if (!Strings.isNullOrEmpty(text) && isTheLastParagraph && note.getParagraphs().size() < 30) {
       note.addParagraph();
     }
 
